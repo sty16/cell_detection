@@ -5,4 +5,4 @@ _base_ = [
 ]
 # optimizer
 optimizer = dict(type='SGD', lr=0.00025, momentum=0.9, weight_decay=0.0001)
-
+runner = dict(type='EpochBasedRunner', max_epochs=240)
