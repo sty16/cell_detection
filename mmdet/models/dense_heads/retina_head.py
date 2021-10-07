@@ -113,3 +113,4 @@ class RetinaHead(AnchorHead):
         cls_score = self.retina_cls(cls_feat)
         bbox_pred = self.retina_reg(reg_feat)
         return cls_score, bbox_pred
+        
