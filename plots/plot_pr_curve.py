@@ -48,6 +48,7 @@ class PrPlot:
         pr_arrays = []
         labels = ["iou=0.5", "iou=0.55", "iou=0.6", "iou=0.65", "iou=0.7", "iou=0.75", "iou=0.8", "iou=0.85", "iou=0.9", "iou=0.95"]
         x = np.arange(0.0, 1.01, 0.01)
+        plt.figure(0)
         for i in range(10):
             pr_arrays.append(self.precisions[i, :, 0, 0, 1])
             plt.plot(x, pr_arrays[i], label=labels[i])
@@ -58,25 +59,32 @@ class PrPlot:
         plt.grid(True)
         plt.legend(loc='lower left', framealpha=0.2)
         plt.savefig("plots/result_iou_ap.png")
+        plt.close(0)
 
     def plot_iou_class_curve(self, iou=0.5):
         pr_arrays = []
-        ious = list(range(0.5, 1, 0.05))
+        ious = list(np.arange(0.5, 1, 0.05))
         assert iou in ious, "iou must be 0.05:0.95:0.05"
         iou_idx = ious.index(iou)
-        labels = ["Primitive", "Lymphocyte", "Monocyte", "Plasma", "Red", "Promy", "Myelo", "Late", "Rods", "Lobu", "Eosl"]
-        x = np.arrange(0.0, 1.01, 0.01)
+        labels = ["Prim", "Lym", "Mono", "Plas", "Red", "Promy", "Myelo", "Late", "Rods", "Lobu", "Eosl"]
+        x = np.arange(0.0, 1.01, 0.01)
         nums_classes = len(labels)
+        plt.figure(0)
+        ax = plt.subplot(111)
         for i in range(nums_classes):
             pr_arrays.append(self.precisions[iou_idx, :, i, 0, 1])
-            plt.plot(x, pr_arrays[i], label=labels[i])
+            ax.plot(x, pr_arrays[i], label=labels[i])
         plt.xlabel("recall")
         plt.ylabel(f"precison iou={iou}")
+        plt.title("class precision recall curve")
         plt.xlim(0, 1.0)
         plt.ylim(0, 1.01)
         plt.grid(True)
-        plt.legend(loc='lower left', framealpha=0.2)
-        plt.savefig("plots/result_class_iou05_ap.png")
+        # lgd = plt.legend(bbox_to_anchor=(1.05, 0), loc=3, borderaxespad=0)
+        # plt.savefig("plots/result_class_iou05_ap.png", dpi=300, bbox_inches='tight')
+        plt.legend(framealpha=0.2)
+        plt.savefig("plots/result_class_iou0_5_ap.png")
+        plt.close(0)
 
 
 
