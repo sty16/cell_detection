@@ -12,6 +12,14 @@ from mmdet.datasets import build_dataset
 
 class PrPlot:
     def __init__(self, model, model_name, config_file, result_file, metric='bbox'):
+        '''
+        precisions[T, R, K, A, M]
+        T: iou thresholds [0.5 : 0.05 : 0.95], idx from 0 to 9
+        R: recall thresholds [0 : 0.01 : 1], idx from 0 to 100
+        K: category, idx from 0 to ...
+        A: area range, (all, small, medium, large), idx from 0 to 3
+        M: max dets, (1, 10, 100), idx from 0 to 2
+        '''
         cfg = Config.fromfile(config_file)
         if isinstance(cfg.data.test, dict):
             cfg.data.test.test_mode = True
@@ -35,23 +43,14 @@ class PrPlot:
         # extract eval data
         self.precisions = coco_eval.eval["precision"]
 
-
     def plot_iou_pr_curve(self):
-        '''
-        precisions[T, R, K, A, M]
-        T: iou thresholds [0.5 : 0.05 : 0.95], idx from 0 to 9
-        R: recall thresholds [0 : 0.01 : 1], idx from 0 to 100
-        K: category, idx from 0 to ...
-        A: area range, (all, small, medium, large), idx from 0 to 3
-        M: max dets, (1, 10, 100), idx from 0 to 2
-        '''
+
         pr_arrays = []
         labels = ["iou=0.5", "iou=0.55", "iou=0.6", "iou=0.65", "iou=0.7", "iou=0.75", "iou=0.8", "iou=0.85", "iou=0.9", "iou=0.95"]
         x = np.arange(0.0, 1.01, 0.01)
         for i in range(10):
             pr_arrays.append(self.precisions[i, :, 0, 0, 1])
             plt.plot(x, pr_arrays[i], label=labels[i])
-
         plt.xlabel("recall")
         plt.ylabel("precison")
         plt.xlim(0, 1.0)
@@ -60,6 +59,25 @@ class PrPlot:
         plt.legend(loc='lower left', framealpha=0.2)
         plt.savefig("plots/result_iou_ap.png")
 
+    def plot_iou_class_curve(self, iou=0.5):
+        pr_arrays = []
+        ious = list(range(0.5, 1, 0.05))
+        assert iou in ious, "iou must be 0.05:0.95:0.05"
+        iou_idx = ious.index(iou)
+        labels = ["Primitive", "Lymphocyte", "Monocyte", "Plasma", "Red", "Promy", "Myelo", "Late", "Rods", "Lobu", "Eosl"]
+        x = np.arrange(0.0, 1.01, 0.01)
+        nums_classes = len(labels)
+        for i in range(nums_classes):
+            pr_arrays.append(self.precisions[iou_idx, :, i, 0, 1])
+            plt.plot(x, pr_arrays[i], label=labels[i])
+        plt.xlabel("recall")
+        plt.ylabel(f"precison iou={iou}")
+        plt.xlim(0, 1.0)
+        plt.ylim(0, 1.01)
+        plt.grid(True)
+        plt.legend(loc='lower left', framealpha=0.2)
+        plt.savefig("plots/result_class_iou05_ap.png")
+
 
 
 if __name__ == "__main__":
@@ -67,11 +85,13 @@ if __name__ == "__main__":
     model_name = "retinanet_r50_fpn_1x_coco"
 
     config_file = f"configs/{model}/{model_name}.py"
+    # mmdetection tools/test.py output file
     result_file = "test_result/latest.pkl"
     metric = 'bbox'
 
     pr_plot = PrPlot(model, model_name, config_file, result_file, metric)
     pr_plot.plot_iou_pr_curve()
+    pr_plot.plot_iou_class_curve(iou=0.5)
 
     
 

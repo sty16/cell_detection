@@ -4,5 +4,5 @@ _base_ = [
     '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
 ]
 # optimizer
-optimizer = dict(type='SGD', lr=0.00001, momentum=0.9, weight_decay=0.0001)
-runner = dict(type='EpochBasedRunner', max_epochs=240)
+optimizer = dict(type='SGD', lr=0.000025, momentum=0.9, weight_decay=0.0001)
+runner = dict(type='EpochBasedRunner', max_epochs=360)
