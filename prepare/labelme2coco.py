@@ -29,6 +29,9 @@ class Lableme2CoCo:
             self.images.append(self._image(obj, json_path))
             shapes = obj['shapes']
             for shape in shapes:
+                label = shape['label']
+                if label not in classname_to_id:
+                    continue
                 annotation = self._annotation(shape)
                 self.annotations.append(annotation)
                 self.ann_id += 1
@@ -92,7 +95,7 @@ class Lableme2CoCo:
 
 if __name__ == '__main__':
     labelme_path = "/Data/cell/group1_big"
-    saved_coco_path = "/Data/cell/cell_coco"
+    saved_coco_path = "/Data/cell/cell_coco/coco"
     # 创建文件
     if not os.path.exists("%s/annotations/"%saved_coco_path):
         os.makedirs("%s/annotations/"%saved_coco_path)
