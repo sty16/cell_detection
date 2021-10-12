@@ -7,6 +7,7 @@ import cv2
 
 from mmdet.apis import init_detector, inference_detector, show_result_pyplot
 from mmdet.datasets.pipelines import Compose
+from mmdet.datasets import replace_ImageToTensor
 
 def featuremap_2_heatmap(feature_map):
     assert isinstance(feature_map, torch.Tensor)
@@ -46,9 +47,9 @@ if __name__ == '__main__':
 
     # build the model from a config file and a checkpoint file
     model = init_detector(config_file, checkpoint_file, device='cuda:0')
-    result = inference_detector(model, img)
     device = next(model.parameters()).device  # model device
     cfg = model.cfg
+    cfg.data.test.pipeline = replace_ImageToTensor(cfg.data.test.pipeline)
     test_pipeline = Compose(cfg.data.test.pipeline)
     imgs = [img]
     datas = []
@@ -68,4 +69,6 @@ if __name__ == '__main__':
     feats = model.extract_feat(x)
     draw_feature_map(feats)
     # visualize the results in a new window
+    result = inference_detector(model, img)
+    print(len(result))
     show_result_pyplot(model, img, result, score_thr=0.5)
